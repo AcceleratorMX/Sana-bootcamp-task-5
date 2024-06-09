@@ -1,4 +1,5 @@
 ﻿@model TodoViewModel
+
 @{
     ViewData["Title"] = "My TODO`s";
 }
@@ -29,7 +30,7 @@
                         <label asp-for="@job.Id">Видалити</label>
                         <input asp-for="@job.Id" type="hidden" name="id"/>
                         <button type="submit">
-                            <img src="~/images/icons/icons8-delete-trash-32.png" alt="delete" class="delete-icon"/>
+                            <img src="~/images/icons/delete-trash.png" alt="delete" class="delete-icon"/>
                         </button>
                     </form>
                 }

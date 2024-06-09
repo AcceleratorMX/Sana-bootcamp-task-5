@@ -11,10 +11,17 @@
 <header>
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow">
         <div class="container w-100">
-            <a class="navbar-brand" asp-area="" asp-controller="Todo" asp-action="Todo">MyTodoList</a>
-            <div class="switch-menu">
-                @await Html.PartialAsync("_RepositorySwitcher")
+            <div>
+                <a class="navbar-brand" asp-area="" asp-controller="Todo" asp-action="Todo">MyTodoList</a>
+
             </div>
+            <div class="d-flex align-items-center">
+                <a class= "mx-3 header-links" asp-area="" asp-controller="Categories" asp-action="CategoriesEditor">Редактор категорій</a>
+                <div class="switch-menu">
+                    @await Html.PartialAsync("_RepositorySwitcher")
+                </div>
+            </div>
+
         </div>
     </nav>
 </header>

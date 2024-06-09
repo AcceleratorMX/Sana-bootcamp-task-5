@@ -2,7 +2,7 @@ using GraphQL.Types;
 using MyTodoList.GraphQL.Mutations;
 using MyTodoList.GraphQL.Queries;
 
-namespace MyTodoList.GraphQL.Schemes;
+namespace MyTodoList.GraphQL.Schemas;
 
 public class TodoSchema : Schema
 {

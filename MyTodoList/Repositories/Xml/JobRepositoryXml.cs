@@ -18,7 +18,8 @@ public class JobRepositoryXml(XmlStorageService xmlStorageService) : IRepository
                 Name = job.Value,
                 CategoryId = int.Parse(job.Attribute("categoryId")?.Value ?? "0"),
                 IsDone = bool.Parse(job.Attribute("isDone")?.Value ?? "false"),
-                Category = categories.FirstOrDefault(c => c.Id == int.Parse(job.Attribute("categoryId")?.Value ?? "0"))
+                Category = categories.FirstOrDefault(c => c.Id == int.Parse(job.Attribute("categoryId")?.Value ?? "0")) ??
+                           throw new Exception($"Category with id {job.Attribute("categoryId")?.Value} not found!")
             };
 
         var jobs = query.ToList();
@@ -42,8 +43,7 @@ public class JobRepositoryXml(XmlStorageService xmlStorageService) : IRepository
             CategoryId = int.Parse(jobElement.Attribute("categoryId")?.Value ?? "0"),
             IsDone = bool.Parse(jobElement.Attribute("isDone")?.Value ?? "false")
         };
-
-
+        
         job.Category = categories.FirstOrDefault(c => c.Id == job.CategoryId) ??
                        throw new Exception($"Category with id {job.CategoryId} not found!");
 
@@ -78,6 +78,7 @@ public class JobRepositoryXml(XmlStorageService xmlStorageService) : IRepository
                          ?? throw new Exception($"Job with id {job.Id} not found!");
 
         jobElement.SetAttributeValue("isDone", job.IsDone);
+        jobElement.SetAttributeValue("categoryId", job.CategoryId);
         await xmlStorageService.SaveJobsAsync(document);
     }
 

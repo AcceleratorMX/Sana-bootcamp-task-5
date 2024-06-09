@@ -22,15 +22,16 @@ public class TodoController(
         };
 
         ViewBag.Categories = await GetCategoriesSelectList();
-
+        
         return View(model);
     }
 
     private async Task<SelectList> GetCategoriesSelectList()
     {
-        var categories = await categoryRepository.GetAllAsync();
+        var categories = (await categoryRepository.GetAllAsync()).Where(c => c.Id != 1);
         return new SelectList(categories, "Id", "Name");
     }
+
 
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -68,14 +69,9 @@ public class TodoController(
         return RedirectToAction("Todo");
     }
 
-    public async Task<IActionResult> Switch()
-    {
-        
-        return View();
-    }
-    
     [HttpPost]
-    public IActionResult Switch(string repositoryType)
+    [Route("todo/switch")]
+    public IActionResult Switch(string repositoryType, string? returnUrl)
     {
         switch (repositoryType.ToLower())
         {
@@ -88,7 +84,7 @@ public class TodoController(
                 categoryRepository.SwitchToXml();
                 break;
         }
-        
-        return RedirectToAction("Todo");
+
+        return Redirect(returnUrl!);
     }
 }

@@ -3,11 +3,10 @@ using GraphQL.MicrosoftDI;
 using GraphQL.Server.Ui.Altair;
 using GraphQL.Types;
 using MyTodoList.Data.Models;
-using MyTodoList.Data.Service;
 using MyTodoList.Data.Services;
 using MyTodoList.GraphQL.Mutations;
 using MyTodoList.GraphQL.Queries;
-using MyTodoList.GraphQL.Schemes;
+using MyTodoList.GraphQL.Schemas;
 using MyTodoList.Repositories;
 using MyTodoList.Repositories.Sql;
 using MyTodoList.Repositories.Xml;
@@ -15,7 +14,6 @@ using Path = System.IO.Path;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Додайте послуги до контейнера
 builder.Services.AddTransient<JobRepositorySql>();
 builder.Services.AddTransient<JobRepositoryXml>();
 builder.Services.AddTransient<CategoryRepositorySql>();
@@ -25,19 +23,15 @@ builder.Services.AddTransient<RootQuery>();
 
 builder.Services.AddSingleton<ISchema, TodoSchema>(services => new TodoSchema(new SelfActivatingServiceProvider(services)));
 
-builder.Services.AddSingleton(services =>
-{
-    var sqlRepository = services.GetRequiredService<JobRepositorySql>();
-    var xmlRepository = services.GetRequiredService<JobRepositoryXml>();
-    return new RepositorySwitcher<Job, int>(sqlRepository, xmlRepository);
-});
+builder.Services.AddSingleton<RepositorySwitcher<Job, int>>(s => new RepositorySwitcher<Job, int>(
+    s.GetRequiredService<JobRepositorySql>(),
+    s.GetRequiredService<JobRepositoryXml>()
+));
 
-builder.Services.AddSingleton(services =>
-{
-    var sqlRepository = services.GetRequiredService<CategoryRepositorySql>();
-    var xmlRepository = services.GetRequiredService<CategoryRepositoryXml>();
-    return new RepositorySwitcher<Category, int>(sqlRepository, xmlRepository);
-});
+builder.Services.AddSingleton<RepositorySwitcher<Category, int>>(s => new RepositorySwitcher<Category, int>(
+    s.GetRequiredService<CategoryRepositorySql>(),
+    s.GetRequiredService<CategoryRepositoryXml>()
+));
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
                        throw new Exception("Connection string is not valid!");

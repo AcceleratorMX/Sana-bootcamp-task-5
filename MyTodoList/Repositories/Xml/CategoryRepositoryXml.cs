@@ -1,6 +1,5 @@
 using System.Xml.Linq;
 using MyTodoList.Data.Models;
-using MyTodoList.Data.Service;
 using MyTodoList.Data.Services;
 using MyTodoList.Repositories.Abstract;
 
@@ -26,10 +25,9 @@ public class CategoryRepositoryXml(XmlStorageService xmlStorageService) : IRepos
         var document = await xmlStorageService.LoadCategoriesAsync();
         var categoryElement = document.Root?.Elements("Category")
             .FirstOrDefault(e => int.Parse(e.Attribute("id")?.Value ?? "0") == id);
-
         if (categoryElement == null)
             throw new Exception($"Category with id {id} not found!");
-
+        
         var category = new Category
         {
             Id = id,
@@ -79,5 +77,4 @@ public class CategoryRepositoryXml(XmlStorageService xmlStorageService) : IRepos
         categoryElement.Remove();
         await xmlStorageService.SaveCategoriesAsync(document);
     }
-
 }

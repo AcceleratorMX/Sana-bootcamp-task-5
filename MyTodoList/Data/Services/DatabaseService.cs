@@ -2,7 +2,7 @@
 using System.Data.SqlClient;
 using Dapper;
 
-namespace MyTodoList.Data.Service;
+namespace MyTodoList.Data.Services;
 
 public class DatabaseService
 {
@@ -70,7 +70,7 @@ public class DatabaseService
     {
         using var connection = OpenConnection();
 
-        var categories = new List<string> { "Дім", "Робота", "Навчання" };
+        var categories = new List<string> { "Без категорії", "Дім", "Робота", "Навчання" };
 
         foreach (var category in categories)
         {

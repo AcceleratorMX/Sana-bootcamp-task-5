@@ -1,0 +1,40 @@
+@model CategoryViewModel
+
+@{
+    ViewData["Title"] = "Категорії";
+}
+
+<div class="add-form">
+    <form asp-controller="Categories" asp-action="CreateCategory" method="post" class="d-flex justify-content-center">
+        <div class="form-group text-center">
+            <label asp-for="Name" hidden>Назва</label>
+            <input asp-for="Name" class="form-control input-category-name" placeholder="Назва..."/>
+            <span asp-validation-for="Name" class="text-danger validation-error"></span>
+        </div>
+        <div class="row justify-content-center mx-1">
+            <div class="col-auto">
+                <button type="submit" class="btn btn-outline-primary">Створити</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="d-flex justify-content-center">
+    <ul class="list-group categories-group d-flex">
+        @foreach (var category in Model.Categories)
+        {
+            <li class="list-group-item list-group-item_category d-flex justify-content-between align-items-center">
+                <div class="name-cell name-cell_category text-center">@category.Name</div>
+                <div class="buttons-cell_category">
+                    <form method="post" class="delete-button_category" asp-controller="Categories" asp-action="Delete" asp-route-userId="@category.Id">
+                        @Html.AntiForgeryToken()
+                        <input hidden name="id" value="@category.Id"/>
+                        <button type="submit">
+                            <img src="~/images/icons/delete-trash.png" alt="delete" class="delete-icon">
+                        </button>
+                    </form>
+                </div>
+            </li>
+        }
+    </ul>
+</div>
