@@ -1,9 +1,9 @@
-﻿@model MyTodoList.Data.ViewModels.JobViewModel
+﻿@model TodoViewModel
 @{
     ViewData["Title"] = "My TODO`s";
 }
 
-@await Html.PartialAsync("CreateFormPartial")
+@await Html.PartialAsync("_CreateForm")
 
 <ul class="list-group">
     @foreach (var job in Model.Jobs.OrderBy(j => j.IsDone))

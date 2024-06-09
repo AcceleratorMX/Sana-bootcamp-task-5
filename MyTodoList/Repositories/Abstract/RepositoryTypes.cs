@@ -1,4 +1,4 @@
-namespace MyTodoList.Enums;
+namespace MyTodoList.Repositories.Abstract;
 
 public enum RepositoryTypes
 {

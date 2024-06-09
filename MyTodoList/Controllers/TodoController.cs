@@ -6,17 +6,17 @@ using MyTodoList.Repositories;
 
 namespace MyTodoList.Controllers;
 
-public class TodoController(JobRepositorySwitcher jobRepository, ILogger<TodoController> logger)
+public class TodoController(
+    RepositorySwitcher<Job, int> jobRepository,
+    RepositorySwitcher<Category, int> categoryRepository)
     : Controller
 {
-    private readonly ILogger<TodoController> _logger = logger;
-
     public async Task<IActionResult> Todo()
     {
-        var model = new JobViewModel
+        var model = new TodoViewModel
         {
-            NewJob = new Job(),
-            Jobs = (await jobRepository.GetJobs())
+            CurrentRepositoryType = jobRepository.GetRepositoryType(),
+            Jobs = (await jobRepository.GetAllAsync())
                 .OrderByDescending(job => job.IsDone)
                 .ThenByDescending(job => job.Id)
         };
@@ -28,44 +28,52 @@ public class TodoController(JobRepositorySwitcher jobRepository, ILogger<TodoCon
 
     private async Task<SelectList> GetCategoriesSelectList()
     {
-        var categories = await jobRepository.GetCategories();
+        var categories = await categoryRepository.GetAllAsync();
         return new SelectList(categories, "Id", "Name");
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Todo(JobViewModel model)
+    public async Task<IActionResult> Todo(TodoViewModel model)
     {
-        var job = model.NewJob;
+        var job = model.Job;
 
-        if (string.IsNullOrEmpty(job.Name) || !job.CategoryId.HasValue || job.CategoryId == 0)
+        if (string.IsNullOrEmpty(job.Name) || job.CategoryId == 0)
         {
             ViewBag.Categories = await GetCategoriesSelectList();
-            model.Jobs = await jobRepository.GetJobs();
+            model.Jobs = await jobRepository.GetAllAsync();
             return View(model);
         }
 
-        await jobRepository.AddJob(job);
+        await jobRepository.CreateAsync(job);
 
         return RedirectToAction("Todo");
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> ChangeProgress(int id)
     {
-        var job = await jobRepository.GetJob(id);
+        var job = await jobRepository.GetByIdAsync(id);
         if (job.IsDone) return RedirectToAction("Todo");
         job.IsDone = true;
-        await jobRepository.UpdateJob(job);
+        await jobRepository.UpdateAsync(job);
         return RedirectToAction("Todo");
     }
 
+    [HttpPost]
     public async Task<IActionResult> Delete(int id)
     {
-        await jobRepository.DeleteJob(id);
+        await jobRepository.DeleteAsync(id);
         return RedirectToAction("Todo");
     }
 
+    public async Task<IActionResult> Switch()
+    {
+        
+        return View();
+    }
+    
     [HttpPost]
     public IActionResult Switch(string repositoryType)
     {
@@ -73,9 +81,11 @@ public class TodoController(JobRepositorySwitcher jobRepository, ILogger<TodoCon
         {
             case "sql":
                 jobRepository.SwitchToSql();
+                categoryRepository.SwitchToSql();
                 break;
             case "xml":
                 jobRepository.SwitchToXml();
+                categoryRepository.SwitchToXml();
                 break;
         }
         

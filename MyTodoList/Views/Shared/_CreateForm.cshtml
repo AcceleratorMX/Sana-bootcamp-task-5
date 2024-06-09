@@ -1,0 +1,24 @@
+@model TodoViewModel
+
+<div class="add-form">
+    <form asp-controller="Todo" asp-action="Todo" class="d-flex justify-content-center">
+        @Html.AntiForgeryToken()
+        <div class="form-group text-center">
+            <label asp-for="Job.Name">Назва завдання</label>
+            <input asp-for="Job.Name" class="form-control input-job-name" placeholder="Сформулюйте завдання"/>
+            <span asp-validation-for="Job.Name" class="text-danger validation-error"></span>
+        </div>
+        <div class="form-group text-center">
+            <label asp-for="Job.CategoryId">Категорія</label>
+            <select asp-for="Job.CategoryId" class="form-select input-job-category text-center mx-md-2" asp-items="ViewBag.Categories">
+                <option value="0" hidden>Категорія</option>
+            </select>
+            <span asp-validation-for="Job.CategoryId" class="text-danger validation-error"></span>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-auto">
+                <button type="submit" class="btn btn-outline-primary">Створити</button>
+            </div>
+        </div>
+    </form>
+</div>

@@ -2,12 +2,15 @@ using GraphQL;
 using GraphQL.MicrosoftDI;
 using GraphQL.Server.Ui.Altair;
 using GraphQL.Types;
+using MyTodoList.Data.Models;
 using MyTodoList.Data.Service;
 using MyTodoList.Data.Services;
 using MyTodoList.GraphQL.Mutations;
 using MyTodoList.GraphQL.Queries;
 using MyTodoList.GraphQL.Schemes;
 using MyTodoList.Repositories;
+using MyTodoList.Repositories.Sql;
+using MyTodoList.Repositories.Xml;
 using Path = System.IO.Path;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,19 +18,26 @@ var builder = WebApplication.CreateBuilder(args);
 // Додайте послуги до контейнера
 builder.Services.AddTransient<JobRepositorySql>();
 builder.Services.AddTransient<JobRepositoryXml>();
-builder.Services.AddSingleton<RepositoryTypeService>();
-builder.Services.AddTransient<SwitchRepositoryTypeMutation>();
+builder.Services.AddTransient<CategoryRepositorySql>();
+builder.Services.AddTransient<CategoryRepositoryXml>();
+builder.Services.AddTransient<SwitchRepositoryType>();
 builder.Services.AddTransient<RootQuery>();
 
 builder.Services.AddSingleton<ISchema, TodoSchema>(services => new TodoSchema(new SelfActivatingServiceProvider(services)));
 
-// Реєстрація JobRepositorySwitcher з використанням фабрики
-builder.Services.AddTransient<JobRepositorySwitcher>(sp => new JobRepositorySwitcher(
-    sp.GetRequiredService<JobRepositorySql>(),
-    sp.GetRequiredService<JobRepositoryXml>(),
-    sp.GetRequiredService<RepositoryTypeService>(),
-    sp.GetRequiredService<ILogger<JobRepositorySwitcher>>()
-));
+builder.Services.AddSingleton(services =>
+{
+    var sqlRepository = services.GetRequiredService<JobRepositorySql>();
+    var xmlRepository = services.GetRequiredService<JobRepositoryXml>();
+    return new RepositorySwitcher<Job, int>(sqlRepository, xmlRepository);
+});
+
+builder.Services.AddSingleton(services =>
+{
+    var sqlRepository = services.GetRequiredService<CategoryRepositorySql>();
+    var xmlRepository = services.GetRequiredService<CategoryRepositoryXml>();
+    return new RepositorySwitcher<Category, int>(sqlRepository, xmlRepository);
+});
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
                        throw new Exception("Connection string is not valid!");

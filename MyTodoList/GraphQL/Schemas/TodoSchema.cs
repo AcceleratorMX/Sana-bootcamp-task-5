@@ -9,6 +9,6 @@ public class TodoSchema : Schema
     public TodoSchema(IServiceProvider provider) : base(provider)
     {
         Query = provider.GetRequiredService<RootQuery>();
-        Mutation = provider.GetRequiredService<SwitchRepositoryTypeMutation>();
+        Mutation = provider.GetRequiredService<SwitchRepositoryType>();
     }
 }

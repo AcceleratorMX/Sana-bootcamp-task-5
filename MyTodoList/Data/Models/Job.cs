@@ -10,7 +10,7 @@ public class Job
     public string Name { get; set; } = null!;
 
     [Range(1, int.MaxValue, ErrorMessage = "Оберіть категорію!")]
-    public int? CategoryId { get; set; }
+    public int CategoryId { get; set; }
 
     public bool IsDone { get; set; }
 

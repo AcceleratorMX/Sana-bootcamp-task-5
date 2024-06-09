@@ -1,7 +1,7 @@
 using System.Xml.Linq;
 using Path = System.IO.Path;
 
-namespace MyTodoList.Data.Service;
+namespace MyTodoList.Data.Services;
 
 public class XmlStorageService
 {
@@ -37,22 +37,36 @@ public class XmlStorageService
         }
     }
 
-    public XDocument LoadJobs()
+    public async Task<XDocument> LoadJobsAsync()
     {
         var filePath = Path.Combine(_xmlFilesDirectory, "Jobs.xml");
-        return XDocument.Load(filePath);
+        var xmlContent = await File.ReadAllTextAsync(filePath);
+        return XDocument.Parse(xmlContent);
     }
 
-    public XDocument LoadCategories()
+    public async Task<XDocument> LoadCategoriesAsync()
     {
         var filePath = Path.Combine(_xmlFilesDirectory, "Categories.xml");
-        return XDocument.Load(filePath);
+        var xmlContent = await File.ReadAllTextAsync(filePath);
+        return XDocument.Parse(xmlContent);
     }
 
-
-    public void SaveJobs(XDocument? document)
+    public async Task SaveJobsAsync(XDocument? document)
     {
         var filePath = Path.Combine(_xmlFilesDirectory, "Jobs.xml");
-        document?.Save(filePath);
+        if (document != null)
+        {
+            await File.WriteAllTextAsync(filePath, document.ToString());
+        }
     }
+
+    public async Task SaveCategoriesAsync(XDocument? document)
+    {
+        var filePath = Path.Combine(_xmlFilesDirectory, "Categories.xml");
+        if (document != null)
+        {
+            await File.WriteAllTextAsync(filePath, document.ToString());
+        }
+    }
+
 }
