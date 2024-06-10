@@ -7,7 +7,7 @@ public sealed class CategoryType : ObjectGraphType<Category>
 {
     public CategoryType()
     {
-        Field(x => x.Id).Description("Category Id");
-        Field(x => x.Name).Description("Category Name");
+        Field(c => c.Id);
+        Field(c => c.Name);
     }
 }

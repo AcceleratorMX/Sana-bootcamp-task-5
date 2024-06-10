@@ -18,10 +18,10 @@ builder.Services.AddTransient<JobRepositorySql>();
 builder.Services.AddTransient<JobRepositoryXml>();
 builder.Services.AddTransient<CategoryRepositorySql>();
 builder.Services.AddTransient<CategoryRepositoryXml>();
-builder.Services.AddTransient<SwitchRepositoryType>();
-builder.Services.AddTransient<RootQuery>();
 
 builder.Services.AddSingleton<ISchema, TodoSchema>(services => new TodoSchema(new SelfActivatingServiceProvider(services)));
+builder.Services.AddTransient<RootQuery>();
+builder.Services.AddTransient<RootMutation>();
 
 builder.Services.AddSingleton<RepositorySwitcher<Job, int>>(s => new RepositorySwitcher<Job, int>(
     s.GetRequiredService<JobRepositorySql>(),
