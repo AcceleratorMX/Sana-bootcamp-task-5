@@ -4,4 +4,9 @@
   <Job id="14" categoryId="2" isDone="true">sssadsd</Job>
   <Job id="15" categoryId="2" isDone="false">dvdvvd</Job>
   <Job id="16" categoryId="1" isDone="false">123</Job>
+  <Job id="17" categoryId="4" isDone="false">чясячссчясяч</Job>
+  <Job id="18" categoryId="3" isDone="false">нове завдання1</Job>
+  <Job id="19" categoryId="3" isDone="false">нове завдання1</Job>
+  <Job id="20" categoryId="3" isDone="false">нове завдання1</Job>
+  <Job id="21" categoryId="2" isDone="false">new</Job>
 </Jobs>

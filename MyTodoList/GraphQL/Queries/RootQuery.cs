@@ -14,7 +14,7 @@ public sealed class RootQuery : ObjectGraphType
     {
         Field<ListGraphType<JobType>>("jobs")
             .ResolveAsync(async context => await jobRepository.GetAllAsync());
-
+    
         Field<JobType>("job")
             .Arguments(new QueryArguments(new QueryArgument<NonNullGraphType<IntGraphType>> { Name = "id" }))
             .ResolveAsync(async context =>
@@ -22,7 +22,7 @@ public sealed class RootQuery : ObjectGraphType
                 var id = context.GetArgument<int>("id");
                 return await jobRepository.GetByIdAsync(id);
             });
-
+    
         Field<ListGraphType<CategoryType>>("categories")
             .ResolveAsync(async context => await categoryRepository.GetAllAsync());
         
@@ -33,7 +33,7 @@ public sealed class RootQuery : ObjectGraphType
                 var id = context.GetArgument<int>("id");
                 return await categoryRepository.GetByIdAsync(id);
             });
-
+    
         Field<StringGraphType>("currentRepository")
             .Resolve(context => jobRepository.GetRepositoryType().ToString().ToUpper());
     }

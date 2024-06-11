@@ -16,10 +16,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddTransient<JobRepositorySql>();
 builder.Services.AddTransient<JobRepositoryXml>();
+builder.Services.AddTransient<JobRepositoryXml>();
 builder.Services.AddTransient<CategoryRepositorySql>();
 builder.Services.AddTransient<CategoryRepositoryXml>();
 
-builder.Services.AddSingleton<ISchema, TodoSchema>(services => new TodoSchema(new SelfActivatingServiceProvider(services)));
+builder.Services.AddSingleton<ISchema, TodoSchema>(services =>
+    new TodoSchema(new SelfActivatingServiceProvider(services)));
 builder.Services.AddTransient<RootQuery>();
 builder.Services.AddTransient<RootMutation>();
 
@@ -52,7 +54,9 @@ builder.Services.AddLogging(config =>
 
 builder.Services.AddGraphQL(options =>
 {
-    options.AddAutoSchema<ISchema>().AddSystemTextJson();
+    options.AddAutoSchema<ISchema>()
+        .AddSystemTextJson()
+        .AddDataLoader();
 });
 
 builder.Services.AddControllersWithViews();
