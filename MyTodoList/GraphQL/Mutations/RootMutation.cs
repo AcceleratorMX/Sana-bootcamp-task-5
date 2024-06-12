@@ -10,8 +10,8 @@ namespace MyTodoList.GraphQL.Mutations;
 public sealed class RootMutation : ObjectGraphType
 {
     public RootMutation(
-        RepositorySwitcher<Job, int> job,
-        RepositorySwitcher<Category, int> category)
+        IRepositorySwitcher<Job, int> job,
+        IRepositorySwitcher<Category, int> category)
     {
         Field<StringGraphType>("createJob")
             .Arguments(new QueryArguments(
@@ -19,7 +19,7 @@ public sealed class RootMutation : ObjectGraphType
             .ResolveAsync(async context =>
             {
                 var newJob = context.GetArgument<Job>("job");
-                await job.CreateAsync(newJob);
+                await job.CurrentRepository.CreateAsync(newJob);
                 return $"{newJob.Name} successfully created";
             });
 
@@ -32,9 +32,9 @@ public sealed class RootMutation : ObjectGraphType
                 var id = context.GetArgument<int>("id");
                 var isDone = context.GetArgument<bool>("isDone");
 
-                var jobToUpdate = await job.GetByIdAsync(id);
+                var jobToUpdate = await job.CurrentRepository.GetByIdAsync(id);
                 jobToUpdate.IsDone = isDone;
-                await job.UpdateAsync(jobToUpdate);
+                await job.CurrentRepository.UpdateAsync(jobToUpdate);
 
                 return $"Progress of job with id {id} successfully changed";
             });
@@ -45,7 +45,7 @@ public sealed class RootMutation : ObjectGraphType
             .ResolveAsync(async context =>
             {
                 var id = context.GetArgument<int>("id");
-                await job.DeleteAsync(id);
+                await job.CurrentRepository.DeleteAsync(id);
                 return $"Job with id {id} successfully deleted";
             });
         
@@ -55,7 +55,7 @@ public sealed class RootMutation : ObjectGraphType
             .ResolveAsync(async context =>
             {
                 var newCategory = context.GetArgument<Category>("category");
-                await category.CreateAsync(newCategory);
+                await category.CurrentRepository.CreateAsync(newCategory);
                 return $"{newCategory.Name} successfully created";
             });
         
@@ -65,7 +65,7 @@ public sealed class RootMutation : ObjectGraphType
             .ResolveAsync(async context =>
             {
                 var id = context.GetArgument<int>("id");
-                await category.DeleteAsync(id);
+                await category.CurrentRepository.DeleteAsync(id);
                 return $"Category with id {id} successfully deleted";
             });
 

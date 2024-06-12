@@ -7,8 +7,8 @@ namespace MyTodoList.GraphQL.Types;
 
 public sealed class JobType : ObjectGraphType<Job>
 {
-    public JobType(IDataLoaderContextAccessor dataLoaderContextAccessor,
-        ICustomDataLoader<int, Category> categoryDataLoader)
+    public JobType(IDataLoaderContextAccessor accessor,
+        ICustomDataLoader<int, Category> dataLoader)
     {
         Field(j => j.Id);
         Field(j => j.Name);
@@ -18,8 +18,8 @@ public sealed class JobType : ObjectGraphType<Job>
         Field<CategoryType, Category>("category")
             .ResolveAsync(context =>
             {
-                var loader = dataLoaderContextAccessor.Context!.GetOrAddBatchLoader<int, Category>(
-                    "GetCategoriesById", categoryDataLoader.LoadAsync);
+                var loader = accessor.Context!.GetOrAddBatchLoader<int, Category>(
+                    "GetCategoriesById", dataLoader.LoadAsync);
                 Console.WriteLine($"Resolving category {context.Source.CategoryId} for job {context.Source.Id}");
                 return Task.FromResult(loader.LoadAsync(context.Source.CategoryId));
             });

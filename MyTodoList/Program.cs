@@ -11,6 +11,7 @@ using MyTodoList.GraphQL.Mutations;
 using MyTodoList.GraphQL.Queries;
 using MyTodoList.GraphQL.Schemas;
 using MyTodoList.Repositories;
+using MyTodoList.Repositories.Abstract;
 using MyTodoList.Repositories.Sql;
 using MyTodoList.Repositories.Xml;
 using Path = System.IO.Path;
@@ -19,16 +20,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddTransient<JobRepositorySql>();
 builder.Services.AddTransient<JobRepositoryXml>();
-builder.Services.AddTransient<JobRepositoryXml>();
 builder.Services.AddTransient<CategoryRepositorySql>();
 builder.Services.AddTransient<CategoryRepositoryXml>();
 
-builder.Services.AddSingleton<RepositorySwitcher<Job, int>>(s => new RepositorySwitcher<Job, int>(
+builder.Services.AddSingleton<IRepositorySwitcher<Job, int>>(s => new RepositorySwitcher<Job, int>(
     s.GetRequiredService<JobRepositorySql>(),
     s.GetRequiredService<JobRepositoryXml>()
 ));
 
-builder.Services.AddSingleton<RepositorySwitcher<Category, int>>(s => new RepositorySwitcher<Category, int>(
+builder.Services.AddSingleton<IRepositorySwitcher<Category, int>>(s => new RepositorySwitcher<Category, int>(
     s.GetRequiredService<CategoryRepositorySql>(),
     s.GetRequiredService<CategoryRepositoryXml>()
 ));

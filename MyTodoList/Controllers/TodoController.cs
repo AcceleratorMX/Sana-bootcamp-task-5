@@ -2,13 +2,13 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using MyTodoList.Data.Models;
 using MyTodoList.Data.ViewModels;
-using MyTodoList.Repositories;
+using MyTodoList.Repositories.Abstract;
 
 namespace MyTodoList.Controllers;
 
 public class TodoController(
-    RepositorySwitcher<Job, int> jobRepository,
-    RepositorySwitcher<Category, int> categoryRepository)
+    IRepositorySwitcher<Job, int> jobRepository,
+    IRepositorySwitcher<Category, int> categoryRepository)
     : Controller
 {
     public async Task<IActionResult> Todo()
@@ -16,7 +16,7 @@ public class TodoController(
         var model = new TodoViewModel
         {
             CurrentRepositoryType = jobRepository.GetRepositoryType(),
-            Jobs = (await jobRepository.GetAllAsync())
+            Jobs = (await jobRepository.CurrentRepository.GetAllAsync())
                 .OrderByDescending(job => job.IsDone)
                 .ThenByDescending(job => job.Id)
         };
@@ -28,7 +28,8 @@ public class TodoController(
 
     private async Task<SelectList> GetCategoriesSelectList()
     {
-        var categories = (await categoryRepository.GetAllAsync()).Where(c => c.Id != 1);
+        var categories = (await categoryRepository.CurrentRepository.GetAllAsync())
+            .Where(c => c.Id != 1);
         return new SelectList(categories, "Id", "Name");
     }
 
@@ -42,11 +43,11 @@ public class TodoController(
         if (string.IsNullOrEmpty(job.Name) || job.CategoryId == 0)
         {
             ViewBag.Categories = await GetCategoriesSelectList();
-            model.Jobs = await jobRepository.GetAllAsync();
+            model.Jobs = await jobRepository.CurrentRepository.GetAllAsync();
             return View(model);
         }
 
-        await jobRepository.CreateAsync(job);
+        await jobRepository.CurrentRepository.CreateAsync(job);
 
         return RedirectToAction("Todo");
     }
@@ -55,17 +56,17 @@ public class TodoController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ChangeProgress(int id)
     {
-        var job = await jobRepository.GetByIdAsync(id);
+        var job = await jobRepository.CurrentRepository.GetByIdAsync(id);
         if (job.IsDone) return RedirectToAction("Todo");
         job.IsDone = true;
-        await jobRepository.UpdateAsync(job);
+        await jobRepository.CurrentRepository.UpdateAsync(job);
         return RedirectToAction("Todo");
     }
 
     [HttpPost]
     public async Task<IActionResult> Delete(int id)
     {
-        await jobRepository.DeleteAsync(id);
+        await jobRepository.CurrentRepository.DeleteAsync(id);
         return RedirectToAction("Todo");
     }
 

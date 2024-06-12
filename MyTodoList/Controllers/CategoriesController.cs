@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using MyTodoList.Data.Models;
 using MyTodoList.Data.ViewModels;
-using MyTodoList.Repositories;
+using MyTodoList.Repositories.Abstract;
 
 namespace MyTodoList.Controllers;
 
 public class CategoriesController(
-    RepositorySwitcher<Job, int> jobRepository,
-    RepositorySwitcher<Category, int> categoryRepository)
+    IRepositorySwitcher<Job, int> jobRepository,
+    IRepositorySwitcher<Category, int> categoryRepository)
     : Controller
 {
     [Route("editor")]
@@ -50,7 +50,7 @@ public class CategoriesController(
             Name = model.Name.Trim()
         };
 
-        await categoryRepository.CreateAsync(category);
+        await categoryRepository.CurrentRepository.CreateAsync(category);
         return RedirectToAction("CategoriesEditor");
     }
 
@@ -59,30 +59,30 @@ public class CategoriesController(
     public async Task<IActionResult> DeleteAsync(int id)
     {
         var defaultCategoryId = GetDefaultCategoryId();
-        var jobs = await jobRepository.GetAllAsync();
+        var jobs = await jobRepository.CurrentRepository.GetAllAsync();
         foreach (var job in jobs)
         {
             if (job.CategoryId == id)
             {
                 job.CategoryId = defaultCategoryId;
-                await jobRepository.UpdateAsync(job);
+                await jobRepository.CurrentRepository.UpdateAsync(job);
             }
         }
 
-        await categoryRepository.DeleteAsync(id);
+        await categoryRepository.CurrentRepository.DeleteAsync(id);
         return RedirectToAction("CategoriesEditor");
     }
 
     
     private async Task<IEnumerable<Category>> GetCategoriesWhereIdIsNotDefaultAsync()
     {
-        var categories = await categoryRepository.GetAllAsync();
+        var categories = await categoryRepository.CurrentRepository.GetAllAsync();
         return categories.Where(c => c.Id != GetDefaultCategoryId());
     }
     
     private int GetDefaultCategoryId()
     {
-        var defaultCategory = categoryRepository.GetAllAsync().Result.FirstOrDefault(c => c.Id == 1);
+        var defaultCategory = categoryRepository.CurrentRepository.GetAllAsync().Result.FirstOrDefault(c => c.Id == 1);
         return defaultCategory?.Id ?? throw new InvalidOperationException("Default category not found");
     }
 }
