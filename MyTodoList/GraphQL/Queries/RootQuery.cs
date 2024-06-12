@@ -13,7 +13,11 @@ public sealed class RootQuery : ObjectGraphType
         IRepositorySwitcher<Category, int> categoryRepository)
     {
         Field<ListGraphType<JobType>>("jobs")
-            .ResolveAsync(async context => await jobRepository.CurrentRepository.GetAllAsync());
+            .ResolveAsync(async context =>
+            {
+                Console.WriteLine("Resolving all jobs");
+                return await jobRepository.CurrentRepository.GetAllAsync();
+            });
 
         Field<JobType>("job")
             .Arguments(new QueryArguments(new QueryArgument<NonNullGraphType<IntGraphType>> { Name = "id" }))
