@@ -1,9 +1,12 @@
 using GraphQL;
+using GraphQL.DataLoader;
 using GraphQL.MicrosoftDI;
 using GraphQL.Server.Ui.Altair;
 using GraphQL.Types;
 using MyTodoList.Data.Models;
 using MyTodoList.Data.Services;
+using MyTodoList.Data.Services.DataLoader;
+using MyTodoList.Data.Services.DataLoader.Abstract;
 using MyTodoList.GraphQL.Mutations;
 using MyTodoList.GraphQL.Queries;
 using MyTodoList.GraphQL.Schemas;
@@ -20,11 +23,6 @@ builder.Services.AddTransient<JobRepositoryXml>();
 builder.Services.AddTransient<CategoryRepositorySql>();
 builder.Services.AddTransient<CategoryRepositoryXml>();
 
-builder.Services.AddSingleton<ISchema, TodoSchema>(services =>
-    new TodoSchema(new SelfActivatingServiceProvider(services)));
-builder.Services.AddTransient<RootQuery>();
-builder.Services.AddTransient<RootMutation>();
-
 builder.Services.AddSingleton<RepositorySwitcher<Job, int>>(s => new RepositorySwitcher<Job, int>(
     s.GetRequiredService<JobRepositorySql>(),
     s.GetRequiredService<JobRepositoryXml>()
@@ -34,6 +32,22 @@ builder.Services.AddSingleton<RepositorySwitcher<Category, int>>(s => new Reposi
     s.GetRequiredService<CategoryRepositorySql>(),
     s.GetRequiredService<CategoryRepositoryXml>()
 ));
+
+builder.Services.AddSingleton<ICustomDataLoader<int, Category>, CategoryDataLoader>();
+builder.Services.AddSingleton<IDataLoaderContextAccessor, DataLoaderContextAccessor>();
+builder.Services.AddSingleton<DataLoaderDocumentListener>();
+
+builder.Services.AddSingleton<ISchema, TodoSchema>(services =>
+    new TodoSchema(new SelfActivatingServiceProvider(services)));
+builder.Services.AddTransient<RootQuery>();
+builder.Services.AddTransient<RootMutation>();
+
+builder.Services.AddGraphQL(options =>
+{
+    options.AddAutoSchema<ISchema>()
+        .AddSystemTextJson()
+        .AddDataLoader();
+});
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
                        throw new Exception("Connection string is not valid!");
@@ -50,13 +64,6 @@ builder.Services.AddLogging(config =>
     config.ClearProviders();
     config.AddConsole();
     config.AddDebug();
-});
-
-builder.Services.AddGraphQL(options =>
-{
-    options.AddAutoSchema<ISchema>()
-        .AddSystemTextJson()
-        .AddDataLoader();
 });
 
 builder.Services.AddControllersWithViews();

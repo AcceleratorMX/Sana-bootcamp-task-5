@@ -15,9 +15,9 @@ public class RepositorySwitcher<T, TId>(
 
     public void SwitchToSql() => _currentRepositoryType = RepositoryTypes.Sql;
     public void SwitchToXml() => _currentRepositoryType = RepositoryTypes.Xml;
-    
+
     public RepositoryTypes GetRepositoryType() => _currentRepositoryType;
-    
+
     public Task<IEnumerable<T>> GetAllAsync() => CurrentRepository.GetAllAsync();
     public Task<T> GetByIdAsync(TId id) => CurrentRepository.GetByIdAsync(id);
     public Task CreateAsync(T entity) => CurrentRepository.CreateAsync(entity);
