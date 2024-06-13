@@ -16,12 +16,8 @@ public sealed class JobType : ObjectGraphType<Job>
         Field(j => j.CategoryId, nullable: true);
 
         Field<CategoryType, Category>("category")
-            .ResolveAsync(context => accessor.Context!.GetOrAddBatchLoader<int, Category>(
-                "GetCategoriesById", async keys =>
-                {
-                    Console.WriteLine($"Categories: {string.Join(", ", keys)}");
-                    return await dataLoader.LoadAsync(keys);
-                }
-            ).LoadAsync(context.Source.CategoryId));
+            .ResolveAsync(context => accessor.Context!
+                .GetOrAddBatchLoader<int, Category>("GetCategoriesById", async keys => 
+                    await dataLoader.LoadAsync(keys)).LoadAsync(context.Source.CategoryId));
     }
 }

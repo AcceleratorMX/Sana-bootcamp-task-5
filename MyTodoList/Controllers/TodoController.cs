@@ -85,7 +85,7 @@ public class TodoController(
                 categoryRepository.SwitchToXml();
                 break;
         }
-
+        
         return Redirect(returnUrl!);
     }
 }

@@ -18,19 +18,25 @@ using Path = System.IO.Path;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddControllersWithViews();
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddTransient<JobRepositorySql>();
 builder.Services.AddTransient<JobRepositoryXml>();
 builder.Services.AddTransient<CategoryRepositorySql>();
 builder.Services.AddTransient<CategoryRepositoryXml>();
 
+
 builder.Services.AddSingleton<IRepositorySwitcher<Job, int>>(s => new RepositorySwitcher<Job, int>(
     s.GetRequiredService<JobRepositorySql>(),
-    s.GetRequiredService<JobRepositoryXml>()
+    s.GetRequiredService<JobRepositoryXml>(),
+    s.GetRequiredService<IHttpContextAccessor>()
 ));
 
 builder.Services.AddSingleton<IRepositorySwitcher<Category, int>>(s => new RepositorySwitcher<Category, int>(
     s.GetRequiredService<CategoryRepositorySql>(),
-    s.GetRequiredService<CategoryRepositoryXml>()
+    s.GetRequiredService<CategoryRepositoryXml>(),
+    s.GetRequiredService<IHttpContextAccessor>()
 ));
 
 builder.Services.AddSingleton<ICustomDataLoader<int, Category>, CategoryDataLoader>();
@@ -65,8 +71,6 @@ builder.Services.AddLogging(config =>
     config.AddConsole();
     config.AddDebug();
 });
-
-builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 

@@ -2,7 +2,6 @@ using GraphQL;
 using GraphQL.Types;
 using MyTodoList.Data.Models;
 using MyTodoList.GraphQL.Types;
-using MyTodoList.Repositories;
 using MyTodoList.Repositories.Abstract;
 
 namespace MyTodoList.GraphQL.Mutations;
@@ -38,7 +37,7 @@ public sealed class RootMutation : ObjectGraphType
 
                 return $"Progress of job with id {id} successfully changed";
             });
-        
+
         Field<StringGraphType>("deleteJob")
             .Arguments(new QueryArguments(
                 new QueryArgument<IntGraphType> { Name = "id" }))
@@ -48,7 +47,7 @@ public sealed class RootMutation : ObjectGraphType
                 await job.CurrentRepository.DeleteAsync(id);
                 return $"Job with id {id} successfully deleted";
             });
-        
+
         Field<StringGraphType>("createCategory")
             .Arguments(new QueryArguments(
                 new QueryArgument<CategoryInputType> { Name = "category" }))
@@ -58,7 +57,7 @@ public sealed class RootMutation : ObjectGraphType
                 await category.CurrentRepository.CreateAsync(newCategory);
                 return $"{newCategory.Name} successfully created";
             });
-        
+
         Field<StringGraphType>("deleteCategory")
             .Arguments(new QueryArguments(
                 new QueryArgument<IntGraphType> { Name = "id" }))
@@ -67,23 +66,6 @@ public sealed class RootMutation : ObjectGraphType
                 var id = context.GetArgument<int>("id");
                 await category.CurrentRepository.DeleteAsync(id);
                 return $"Category with id {id} successfully deleted";
-            });
-
-        Field<StringGraphType>("switchRepository")
-            .Resolve(context =>
-            {
-                if (job.GetRepositoryType() == RepositoryTypes.Sql || job.GetRepositoryType() == RepositoryTypes.Sql)
-                {
-                    job.SwitchToXml();
-                    category.SwitchToXml();
-                    return "Switched to XML";
-                }
-                else
-                {
-                    job.SwitchToSql();
-                    category.SwitchToSql();
-                    return "Switched to SQL";
-                }
             });
     }
 }

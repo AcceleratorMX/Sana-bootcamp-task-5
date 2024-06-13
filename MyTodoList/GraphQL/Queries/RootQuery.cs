@@ -13,18 +13,13 @@ public sealed class RootQuery : ObjectGraphType
         IRepositorySwitcher<Category, int> categoryRepository)
     {
         Field<ListGraphType<JobType>>("jobs")
-            .ResolveAsync(async context =>
-            {
-                Console.WriteLine("Resolving all jobs");
-                return await jobRepository.CurrentRepository.GetAllAsync();
-            });
+            .ResolveAsync(async context => await jobRepository.CurrentRepository.GetAllAsync());
 
         Field<JobType>("job")
             .Arguments(new QueryArguments(new QueryArgument<NonNullGraphType<IntGraphType>> { Name = "id" }))
             .ResolveAsync(async context =>
             {
                 var id = context.GetArgument<int>("id");
-                Console.WriteLine($"Resolving job with id {id}");
                 return await jobRepository.CurrentRepository.GetByIdAsync(id);
             });
 
@@ -38,8 +33,5 @@ public sealed class RootQuery : ObjectGraphType
                 var id = context.GetArgument<int>("id");
                 return await categoryRepository.CurrentRepository.GetByIdAsync(id);
             });
-
-        Field<StringGraphType>("currentRepository")
-            .Resolve(context => jobRepository.GetRepositoryType().ToString().ToUpper());
     }
 }
